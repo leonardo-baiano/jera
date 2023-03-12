@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cronômetro de produtividade</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Cronômetro de produtividade</h1>
+        <div id="tempo"></div>
+        <button id="iniciar">Iniciar</button>
+        <button id="descanso">Descanso</button>
+    </div>
+
+    <audio id="alarme">
+        <source src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg">
+    </audio>
+
+    <script>
+        var iniciar = 25; // tempo de trabalho em minutos
+        var descanso = 5; // tempo de descanso em minutos
+        var tempo = document.getElementById("tempo");
+        var cronometro;
+        var emDescanso = false;
+
+        function iniciarCronometro() {
+            if (emDescanso) {
+                tempoRestante = descanso * 60;
+                emDescanso = false;
+            } else {
+                tempoRestante = iniciar * 60;
+                emDescanso = true;
+            }
+
+            clearInterval(cronometro);
+
+            cronometro = setInterval(function() {
+                var minutos = Math.floor(tempoRestante / 60);
+                var segundos = tempoRestante % 60;
+
+                if (segundos < 10) {
+                    segundos = "0" + segundos;
+                }
+
+                tempo.innerHTML = minutos + ":" + segundos;
+
+                if (tempoRestante === 0) {
+                    clearInterval(cronometro);
+                    document.getElementById("alarme").play();
+                    setTimeout(function() {
+                        document.getElementById("alarme").pause();
+                        document.getElementById("alarme").currentTime = 0;
+                        iniciarCronometro();
+                    }, 5000);
+                    if (emDescanso) {
+                        tempoRestante = descanso * 60;
+                        emDescanso = false;
+                    } else {
+                        tempoRestante = iniciar * 60;
+                        emDescanso = true;
+                    }
+                } else {
+                    tempoRestante--;
+                }
+            }, 1000);
+        }
+
+        document.getElementById("iniciar").addEventListener("click", iniciarCronometro);
+        document.getElementById("descanso").addEventListener("click", function() {
+            iniciar = 25;
+            descanso = 5;
+            emDescanso = true;
+            iniciarCronometro();
+        });
+    </script>
+</body>
+</html>
